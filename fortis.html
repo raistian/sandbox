@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Fortis 0.14</title>
+<link rel="stylesheet" type="text/css" href="fortis.css" />
+<script src="jquery-3.2.1.min.js"></script>
+<script type="text/javascript">
+/**
+ * Returns text in user's clipboard.
+**/
+var clipboardTxt = function(e) {
+    return ( e.originalEvent.clipboardData.getData('text/plain') );
+};
+
+
+/**
+ * Convert String to something useful ie. SQL query, HTML table, etc.
+**/
+var convertTo = function(str, outputType) {
+    var rows;
+    if (str.charCodeAt(str.length-1) == 10) {
+        rows = str.substr(0, str.length-1).split('\r\n');
+    }
+    else {
+        rows = str.substr(0, str.length).split('\r\n');
+    }
+    //console.log(rows);
+
+    if (outputType == 'SQL_INSERT_VALUES') {
+        var tbl = $('#tempTable').val();
+
+        var output = 'set define off;\ntruncate table '+tbl+';\n';
+        for (var i in rows) {
+            var cols = rows[i].split('\t');
+            for (var j in cols) {
+                // Replace whitespace characters (tabs etc) with normal spaces
+                // + trim leading/ trailing spaces
+                // + replace leading/ trailing double-quotes.
+                var col = cols[j].replace(/\s+/g, ' ').trim().replace(/^"|\s+"$|"$/g, '');
+                var ins, vls;
+                // First column (cell).
+                if (j == 0) {
+                    ins = 'insert into ' + tbl + ' ( C1';
+                    vls = " values ( q'!" + col + "!'";
+                }
+                // The rest of the columns (cells).
+                else {
+                    ins += ', C' + (parseInt(j)+1);
+                    vls += ", q'!" + col + "!'";
+                }
+            }
+            ins += ' )';
+            //vls += ' ); -- ' + (parseInt(i)+1) +'\n';
+            vls += ' ) /* ' + (parseInt(i)+1) +' */ ;\n';
+            output += (ins+vls);
+        }
+        output += ('commit;');
+        //console.log( output );
+
+        $('#sqlArea').show();
+        $('#sqlTxt').val( $('#sqlTxt').val() + output ).select();
+    }
+};
+
+/**
+ * Override Paste on Temp Table Name field, run the same code as window level paste event instead.
+**/
+var overridePaste = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    convertTo( clipboardTxt(e), 'SQL_INSERT_VALUES' );
+};
+
+
+/**
+ * On a "Paste" event write SQL Code
+**/
+var pasteData = function(e) {
+    convertTo( clipboardTxt(e), 'SQL_INSERT_VALUES' );
+};
+
+var copyToClipboard = function() {
+    if ( $('#sqlTxt').val() != '' ) {
+        $('#sqlTxt').select();
+        document.execCommand('copy');
+        //alert('The SQL code is in your clipboard now.\nYou can paste it in your preferred IDE [SQL Developer/ PLSQL Developer].');
+    }
+    else {
+        alert('You clipboard is empty. You\'d need to copy some data from Excel first.');
+    }
+};
+
+/**
+ * MAIN - uses new standard to replace "document.ready"
+**/
+$(function() {
+    $('#sqlArea').hide();
+
+    if ( $('#tempTable').val() == '' ) {
+        $('#tempTable').val('FOX_T');
+    }
+
+    $('#tempTable').on('paste', overridePaste);
+    $(window).on('paste', pasteData);
+    $('#copyToClipboardBtn').on('click', copyToClipboard);
+});
+</script>
+</head>
+<body>
+<div id="optionsArea">
+    <h1>Fortis</h1>
+    <h2>The god of randomness</h2>
+    <p><strong>Output format:</strong></p>
+    <p>
+    <input type="radio" name="options" checked>Oracle Insert SQL</input>
+    <input type="radio" name="options" disabled>HTML Table</input>
+    <input type="radio" name="options" disabled>SQL*Loader</input>
+    </p>
+
+    <p><strong><label for="tempTable">Oracle Table:</label></strong></p>
+    <p>
+        <input type="text" id="tempTable" />
+        Copy data from Excel and <strong>paste (Ctrl+V)</strong> it on this page.
+    </p>
+</div>
+
+<div id="sqlArea">
+    <input type="button" id="copyToClipboardBtn" value="Copy to Clipboard"/>
+    <textarea id="sqlTxt" readonly></textarea>
+</div>
+
+</body>
+</html>

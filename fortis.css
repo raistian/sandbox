@@ -1,0 +1,63 @@
+html, body {
+    font-size: 12px;
+    color: #00695C;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+th, td {
+    border: thin solid #80CBC4;
+    padding: 4px;
+    text-align: left;
+}
+
+div {
+    padding: 8px;
+    margin: auto;
+    width: 90%;
+    border: 1px dashed #80CBC4;
+}
+
+#optionsArea {
+    padding: 18px;
+    margin-top: 12px;
+    width: 600px;
+    border: 1px solid #80CBC4;
+}
+
+#sqlArea {
+    height: 500px;
+    border: 0px;
+}
+
+#tempTable {
+    padding: 4px;
+    font-weight: bold;
+    color: #00695C;
+    border: 1px solid #80CBC4;
+}
+
+#sqlTxt{
+    padding: 12px;
+    width: 90%;
+    height: 90%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid #80CBC4;
+}
+
+#copyToClipboardBtn {
+    display: block;
+    margin-bottom: 4px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    color: #00695C;
+    background-color: #E0F2F1;
+}
+
