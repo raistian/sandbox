@@ -1,0 +1,14 @@
+html, body {
+  font-size: 12px;
+  font-family: Verdana, Geneva, sans-serif;
+  color: #00695C;
+  background-color: #f5f5f5;
+}
+.grid-container {
+  display: grid;
+  grid-template-columns: 200px 300px auto;
+  grid-gap: 10px;
+}
+.grid-item {
+  border: 1px dashed pink;
+}
