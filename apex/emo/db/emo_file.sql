@@ -18,11 +18,16 @@ create table emo_file (
 create unique index emo_file_u1 on emo_file (file_id)
 /
 create or replace editionable trigger emo_file_t1
-  before insert on emo_file
+  before insert or update on emo_file
   for each row
 begin
-  if :new.file_id is null then
-    select to_number(sys_guid(),'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') into :new.file_id from dual;
+  if inserting then
+    :new.file_id := nvl(:new.file_id, to_number(sys_guid(),'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'));
+    :new.creator := nvl(v('APP_USER'), user);
+    :new.created := sysdate;
+  elsif updating then
+    :new.updater := nvl(v('APP_USER'), user);
+    :new.updated := sysdate;
   end if;
 end;
 /
